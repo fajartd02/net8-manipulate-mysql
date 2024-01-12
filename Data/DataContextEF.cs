@@ -1,19 +1,27 @@
 using HelloWorld.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace HelloWorld.Data
 {
     public class DataContextEF : DbContext
     {
+        private IConfiguration _config;
+        public DataContextEF(IConfiguration config)
+        {
+            _config = config;
+        }
 
         public DbSet<Computer>? Computers { get; set; }
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseMySQL("Server=localhost;Port=3306;Database=DotNetCourseDatabase;Uid=root;Pwd=devRoot123;", 
-                optionsBuilder => optionsBuilder.EnableRetryOnFailure()); 
+                string? _connectionString = _config.GetConnectionString("DefaultConnection");
+                if(_connectionString != null) {
+                    optionsBuilder.UseMySQL(_connectionString, 
+                    optionsBuilder => optionsBuilder.EnableRetryOnFailure()); 
+                }
             }
         }
 

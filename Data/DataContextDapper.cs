@@ -1,12 +1,20 @@
 using System.Data;
 using Dapper;
+using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 
 namespace HelloWorld.Data
 {
     public class DataContextDapper
     {
-        private string _connectionString = "Server=localhost;Port=3306;Database=DotNetCourseDatabase;Uid=root;Pwd=devRoot123;";
+        // private IConfiguration _config;
+        private string? _connectionString;
+
+        public DataContextDapper(IConfiguration config)
+        {
+            // _config = config;
+            _connectionString = config.GetConnectionString("DefaultConnection");
+        }
         
         public IEnumerable<T> LoadData<T>(string sql)
         {

@@ -6,6 +6,7 @@ using HelloWorld.Models;
 using MySql.Data.MySqlClient;
 using System.Globalization;
 using HelloWorld.Data;
+using Microsoft.Extensions.Configuration;
 
 namespace HelloWorld
 {
@@ -14,14 +15,18 @@ namespace HelloWorld
         static void Main(string[] args)
         {
 
-            // DataContextDapper dapper = new DataContextDapper();
-            DataContextEF entityFramework = new DataContextEF();
+            IConfiguration config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json")
+                .Build();
 
-            // string sqlCommand = "SELECT NOW();";
+            DataContextDapper dapper = new DataContextDapper(config);
+            DataContextEF entityFramework = new DataContextEF(config);
 
-            // DateTime rightNow = dapper.LoadDataSingle<DateTime>(sqlCommand);
+            string sqlCommand = "SELECT NOW();";
 
-            // Console.WriteLine(rightNow);
+            DateTime rightNow = dapper.LoadDataSingle<DateTime>(sqlCommand);
+
+            Console.WriteLine(rightNow);
 
             Computer myComputer = new Computer() 
             {
@@ -36,30 +41,31 @@ namespace HelloWorld
             entityFramework.Add(myComputer);
             entityFramework.SaveChanges();
 
-            // string sql = @"INSERT INTO Computer (Motherboard, HasWifi, HasLTE, ReleaseDate, Price, VideoCard) 
-            //    VALUES ('" + myComputer.Motherboard 
-            //            + "'," + (myComputer.HasWifi ? 1 : 0)
-            //            + "," + (myComputer.HasLTE ? 1 : 0)
-            //            + ",'" + myComputer.ReleaseDate.ToString("yyyy-MM-dd HH:mm:ss")
-            //            + "'," + myComputer.Price.ToString("0.0000", CultureInfo.InvariantCulture)
-            //            + ",'" + myComputer.VideoCard
-            //    + "')";
+            string sql = @"INSERT INTO Computer (Motherboard, HasWifi, HasLTE, ReleaseDate, Price, VideoCard) 
+               VALUES ('" + myComputer.Motherboard 
+                       + "'," + (myComputer.HasWifi ? 1 : 0)
+                       + "," + (myComputer.HasLTE ? 1 : 0)
+                       + ",'" + myComputer.ReleaseDate.ToString("yyyy-MM-dd HH:mm:ss")
+                       + "'," + myComputer.Price.ToString("0.0000", CultureInfo.InvariantCulture)
+                       + ",'" + myComputer.VideoCard
+               + "')";
 
             
-            // Console.WriteLine(sql);
+            Console.WriteLine(sql);
 
             // int result = dapper.ExecuteSqlWithRowCount(sql);
-            // bool result = dapper.ExecuteSql(sql);
-            // Console.WriteLine(result);
+            bool result = dapper.ExecuteSql(sql);
+            Console.WriteLine(result);
 
-            // string sqlSelect = @"SELECT 
-            //     Motherboard, 
-            //     HasWifi, 
-            //     HasLTE, 
-            //     ReleaseDate, 
-            //     Price, 
-            //     VideoCard 
-            // FROM Computer";
+            string sqlSelect = @"SELECT
+                ComputerId, 
+                Motherboard, 
+                HasWifi, 
+                HasLTE, 
+                ReleaseDate, 
+                Price, 
+                VideoCard 
+            FROM Computer";
 
             
             IEnumerable<Computer>? computersEf = entityFramework.Computers?.ToList<Computer>();
@@ -80,16 +86,17 @@ namespace HelloWorld
                 }
             }
 
-            // IEnumerable<Computer> computers = dapper.LoadData<Computer>(sqlSelect);
-            // foreach (Computer computer in computers)
-            // {
-            //     Console.WriteLine(computer.Motherboard 
-            //            + "'," + computer.HasWifi
-            //            + "," + computer.HasLTE
-            //            + ",'" + computer.ReleaseDate.ToString("yyyy-MM-dd HH:mm:ss")
-            //            + "'," + computer.Price.ToString("0.0000", CultureInfo.InvariantCulture)
-            //            + ",'" + computer.VideoCard);
-            // }
+            IEnumerable<Computer> computers = dapper.LoadData<Computer>(sqlSelect);
+            foreach (Computer computer in computers)
+            {
+                Console.WriteLine(computer.ComputerId 
+                        + "'," + computer.Motherboard
+                        + "'," + computer.HasWifi
+                        + "," + computer.HasLTE
+                        + ",'" + computer.ReleaseDate.ToString("yyyy-MM-dd HH:mm:ss")
+                        + "'," + computer.Price.ToString("0.0000", CultureInfo.InvariantCulture)
+                        + ",'" + computer.VideoCard);
+            }
 
         }
 
